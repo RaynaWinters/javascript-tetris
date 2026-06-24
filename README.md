@@ -3,13 +3,19 @@ Javascript Tetris
 
 This fork supports Imagery and rotational awareness of that imagery so that each tetronimo can be skinned with custom art. 
 
+Alpha Stage
+======
+
+* Created images folder containing subfolders for all blocks using source naming conventions of i, j, l, o, s, t, and z
+* Created base art of a given color for each tetronimo, individual block sections for each tetronimo and numbering system for use in testing and review
+* Created preview of o and i pieces for ease of understanding how the blocks are broken apart
+* Utilized AI assistant Cursor to show examples of implementation of o image application and rotation
+* Utilized AI assistant Cursor to show examples of implementation of i image application and rotation
 
 
 
-
-
-
-From Source:
+From Source
+======
 
 An HTML5 Tetris Game
 
@@ -18,17 +24,6 @@ An HTML5 Tetris Game
  * view the [source](https://github.com/jakesgordon/javascript-tetris)
 
 >> _*SUPPORTED BROWSERS*: Chrome, Firefox, Safari, Opera and IE9+_
-
-FUTURE
-======
-
- * menu
- * animation and fx
- * levels
- * high scores
- * touch support
- * music and sound fx
-
 
 License
 =======
