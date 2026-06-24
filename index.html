@@ -364,13 +364,21 @@
       return row * 2 + col;
     }
 
+    function cellRotation(type, dir) {
+      if (!type.imageRot)
+        return undefined;
+      if (type.spawnDir !== undefined)
+        return (dir - type.spawnDir + 4) % 4;
+      return dir;
+    }
+
     function dropPiece() {
       eachblock(current.type, current.x, current.y, current.dir, function(x, y, col, row) {
         if (current.type.images)
           setBlock(x, y, {
             type: current.type,
             imageIndex: cellImageIndex(current.type, col, row, current.dir),
-            imageRotation: current.type.imageRot ? current.dir : undefined
+            imageRotation: cellRotation(current.type, current.dir)
           });
         else
           setBlock(x, y, current.type);
@@ -487,7 +495,7 @@
         if (type.images) {
           var cellImg = type.images[cellImageIndex(type, col, row, dir)];
           if (cellImg && cellImg.complete)
-            drawBlockImage(ctx, cellImg, bx, by, type.imageRot ? dir : undefined);
+            drawBlockImage(ctx, cellImg, bx, by, cellRotation(type, dir));
         }
       });
       if (type.image && type.image.complete)
