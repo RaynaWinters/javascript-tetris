@@ -1,6 +1,16 @@
 Javascript Tetris
 =================
 
+This fork supports Imagery and rotational awareness of that imagery so that each tetronimo can be skinned with custom art. 
+
+
+
+
+
+
+
+From Source:
+
 An HTML5 Tetris Game
 
  * [play the game](https://jakesgordon.com/games/tetris/)
