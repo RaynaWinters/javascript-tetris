@@ -11,7 +11,8 @@ Alpha Stage
 * Created preview of o and i pieces for ease of understanding how the blocks are broken apart
 * Utilized AI assistant Cursor to show examples of implementation of o image application and rotation
 * Utilized AI assistant Cursor to show examples of implementation of i image application and rotation
-
+* Added support for j, l, s, t, and z
+* Added background Image grid
 
 
 From Source

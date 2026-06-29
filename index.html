@@ -6,7 +6,8 @@
     body      { font-family: Helvetica, sans-serif; }
     #tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
     #stats    { display: inline-block; vertical-align: top; }
-    #canvas   { display: inline-block; vertical-align: top; background: url(texture.jpg); box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
+    #canvas   { display: inline-block; vertical-align: top; background: url(texture.png); background-position: top left;
+      background-size: contain; box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
     #menu     { display: inline-block; vertical-align: top; position: relative; }
     #menu p   { margin: 0.5em 0; text-align: center; }
     #menu p a { text-decoration: none; color: black; }
@@ -122,6 +123,27 @@
       })(ii);
     }
 
+
+    var jImages = [];
+    for (var ii = 1; ii <= 4; ii++) {
+      (function(n) {
+        var img = new Image();
+        img.src = 'images/j/j_' + n + '.png';
+        img.onload = function() { invalidate(); invalidateNext(); };
+        jImages.push(img);
+      })(ii);
+    }
+
+    var lImages = [];
+    for (var ii = 1; ii <= 4; ii++) {
+      (function(n) {
+        var img = new Image();
+        img.src = 'images/l/l_' + n + '.png';
+        img.onload = function() { invalidate(); invalidateNext(); };
+        lImages.push(img);
+      })(ii);
+    }
+
     var oImages = [];
     for (var oi = 1; oi <= 4; oi++) {
       (function(n) {
@@ -132,6 +154,36 @@
       })(oi);
     }
 
+    var sImages = [];
+    for (var si = 1; si <= 4; si++) {
+      (function(n) {
+        var img = new Image();
+        img.src = 'images/s/s_' + n + '.png';
+        img.onload = function() { invalidate(); invalidateNext(); };
+        sImages.push(img);
+      })(si);
+    }
+
+    var tImages = [];
+    for (var ti = 1; ti <= 4; ti++) {
+      (function(n) {
+        var img = new Image();
+        img.src = 'images/t/t_' + n + '.png';
+        img.onload = function() { invalidate(); invalidateNext(); };
+        tImages.push(img);
+      })(ti);
+    }
+
+    var zImages = [];
+    for (var zi = 1; zi <= 4; zi++) {
+      (function(n) {
+        var img = new Image();
+        img.src = 'images/z/z_' + n + '.png';
+        img.onload = function() { invalidate(); invalidateNext(); };
+        zImages.push(img);
+      })(zi);
+    }
+
     var i = { size: 4, blocks: [0x0F00, 0x2222, 0x00F0, 0x4444], color: '#007e19', images: iImages, spawnDir: 1,
       imageRot: [
         [[0,0,0,0], [0,1,2,3], [0,0,0,0], [0,0,0,0]], // horizontal 1 2 3 4
@@ -140,9 +192,23 @@
         [[0,3,0,0], [0,2,0,0], [0,1,0,0], [0,0,0,0]]  // vertical 4 3 2 1
       ]
     };
-    var j = { size: 3, blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20], color: '#7ac142'   };
-    var l = { size: 3, blocks: [0x4460, 0x0E80, 0xC440, 0x2E00], color: 'orange' };
-    var o = { size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: 'yellow', images: oImages,
+    var j = { size: 3, blocks: [0x44C0, 0x8E00, 0x6440, 0x0E20], color: '#7ac142', images: jImages, spawnDir: 0,
+      imageRot: [
+        [[0,0,0], [0,1,0], [2,3,0]],
+        [[2,0,0], [3,1,0], [0,0,0]], 
+        [[0,3,2], [0,1,0], [0,0,0]],
+        [[0,0,0], [0,1,3], [0,0,2]] 
+      ]
+    };
+    var l = { size: 3, blocks: [0x4460, 0x0E80, 0xC440, 0x2E00], color: 'orange' , images: lImages, spawnDir: 0,
+      imageRot: [
+        [[0,0,0], [0,1,0], [0,2,3]],
+        [[0,0,0], [2,1,0], [3,0,0]], 
+        [[3,2,0], [0,1,0], [0,0,0]],
+        [[0,0,3], [0,1,2], [0,0,0]] 
+      ]
+    };
+    var o = { size: 2, blocks: [0xCC00, 0xCC00, 0xCC00, 0xCC00], color: 'yellow', images: oImages, spawnDir: 0,
       imageRot: [
         [[0, 1], [2, 3]], // 1 2 / 3 4
         [[2, 0], [3, 1]], // 3 1 / 4 2
@@ -150,9 +216,30 @@
         [[1, 3], [0, 2]]  // 2 4 / 1 3
       ]
     };
-    var s = { size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: 'green'  };
-    var t = { size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: 'purple' };
-    var z = { size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: 'red'    };
+    var s = { size: 3, blocks: [0x06C0, 0x8C40, 0x6C00, 0x4620], color: 'green', images: sImages, spawnDir: 0,
+      imageRot: [
+        [[0,0,0], [0,0,1], [2,3,0]],
+        [[2,0,0], [3,0,0], [0,1,0]], 
+        [[0,3,2], [1,0,0], [0,0,0]],
+        [[0,1,0], [0,0,3], [0,0,2]] 
+      ]
+    };
+    var t = { size: 3, blocks: [0x0E40, 0x4C40, 0x4E00, 0x4640], color: 'purple', images: tImages, spawnDir: 0,
+      imageRot: [
+        [[0,0,0], [0,1,2], [0,3,0]],
+        [[0,0,0], [3,1,0], [0,2,0]], 
+        [[0,3,0], [2,1,0], [0,0,0]],
+        [[0,2,0], [0,1,3], [0,0,0]] 
+      ]
+    };
+    var z = { size: 3, blocks: [0x0C60, 0x4C80, 0xC600, 0x2640], color: 'red', images: zImages, spawnDir: 0,
+      imageRot: [
+        [[0,0,0], [0,1,0], [0,2,3]],
+        [[0,0,0], [2,1,0], [3,0,0]], 
+        [[3,2,0], [0,1,0], [0,0,0]],
+        [[0,0,3], [0,1,2], [0,0,0]] 
+      ]
+    };
 
     //------------------------------------------------
     // do the bit manipulation and iterate through each
