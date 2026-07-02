@@ -2,27 +2,7 @@
 <html>
 <head>
   <title>Javascript Tetris</title>
-  <style>
-    body      { font-family: Helvetica, sans-serif; }
-    #tetris   { margin: 1em auto; padding: 1em; border: 4px solid black; border-radius: 10px; background-color: #F8F8F8; }
-    #stats    { display: inline-block; vertical-align: top; }
-    #canvas   { display: inline-block; vertical-align: top; background: url(texture.png); background-position: top left;
-      background-size: contain; box-shadow: 10px 10px 10px #999; border: 2px solid #333; }
-    #menu     { display: inline-block; vertical-align: top; position: relative; }
-    #menu p   { margin: 0.5em 0; text-align: center; }
-    #menu p a { text-decoration: none; color: black; }
-    #upcoming { display: block; margin: 0 auto; background-color: #E0E0E0; }
-    #score    { color: #7ac142; font-weight: bold; vertical-align: middle; }
-    #rows     { color: #0e4f69; font-weight: bold; vertical-align: middle; }
-    #stats    { position: absolute; bottom: 0em; right: 1em; }
-    @media screen and (min-width:   0px) and (min-height:   0px)  { #tetris { font-size: 0.75em; width: 250px; } #menu { width: 100px; height: 200px; } #upcoming { width:  50px; height:  50px; } #canvas { width: 100px; height: 200px; } } /* 10px chunks */
-    @media screen and (min-width: 400px) and (min-height: 400px)  { #tetris { font-size: 1.00em; width: 350px; } #menu { width: 150px; height: 300px; } #upcoming { width:  75px; height:  75px; } #canvas { width: 150px; height: 300px; } } /* 15px chunks */
-    @media screen and (min-width: 500px) and (min-height: 500px)  { #tetris { font-size: 1.25em; width: 450px; } #menu { width: 200px; height: 400px; } #upcoming { width: 100px; height: 100px; } #canvas { width: 200px; height: 400px; } } /* 20px chunks */
-    @media screen and (min-width: 600px) and (min-height: 600px)  { #tetris { font-size: 1.50em; width: 550px; } #menu { width: 250px; height: 500px; } #upcoming { width: 125px; height: 125px; } #canvas { width: 250px; height: 500px; } } /* 25px chunks */
-    @media screen and (min-width: 700px) and (min-height: 700px)  { #tetris { font-size: 1.75em; width: 650px; } #menu { width: 300px; height: 600px; } #upcoming { width: 150px; height: 150px; } #canvas { width: 300px; height: 600px; } } /* 30px chunks */
-    @media screen and (min-width: 800px) and (min-height: 800px)  { #tetris { font-size: 2.00em; width: 750px; } #menu { width: 350px; height: 700px; } #upcoming { width: 175px; height: 175px; } #canvas { width: 350px; height: 700px; } } /* 35px chunks */
-    @media screen and (min-width: 900px) and (min-height: 900px)  { #tetris { font-size: 2.25em; width: 850px; } #menu { width: 400px; height: 800px; } #upcoming { width: 200px; height: 200px; } #canvas { width: 400px; height: 800px; } } /* 40px chunks */
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -31,12 +11,19 @@
     <div id="menu">
       <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
       <p><canvas id="upcoming"></canvas></p>
-      <p>score <span id="score">00000</span></p>
-      <p>rows <span id="rows">0</span></p>
+      <p>Score <span id="score">00000</span></p>
+      <p>Rows <span id="rows">0</span></p>
+      <p>Best Score <span id="high-score">00000</span></p>
+
+
+      <p><a href="javascript:toggleScoreView();" id="score-view-toggle" class="button">View Leaderboard</a></p>
     </div>
     <canvas id="canvas">
       Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
     </canvas>
+
+    <div id="leaderboard" class="leaderboard" style="display: none;"></div>
+
   </div>
 
   <script src="stats.js"></script>
@@ -89,6 +76,7 @@
         blocks,        // 2 dimensional array (nx*ny) representing tetris court - either empty block or occupied by a 'piece'
         actions,       // queue of user actions (inputs)
         playing,       // true|false - game is in progress
+        paused,        // true|false - game is paused
         dt,            // time since starting this game
         current,       // the current piece
         next,          // the next piece
@@ -336,12 +324,18 @@
     function keydown(ev) {
       var handled = false;
       if (playing) {
-        switch(ev.keyCode) {
-          case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
-          case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
-          case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
-          case KEY.DOWN:   actions.push(DIR.DOWN);  handled = true; break;
-          case KEY.ESC:    lose();                  handled = true; break;
+        if (ev.keyCode == KEY.SPACE) {
+          togglePause();
+          handled = true;
+        }
+        else if (!paused) {
+          switch(ev.keyCode) {
+            case KEY.LEFT:   actions.push(DIR.LEFT);  handled = true; break;
+            case KEY.RIGHT:  actions.push(DIR.RIGHT); handled = true; break;
+            case KEY.UP:     actions.push(DIR.UP);    handled = true; break;
+            case KEY.DOWN:   actions.push(DIR.DOWN);  handled = true; break;
+            case KEY.ESC:    lose();                  handled = true; break;
+          }
         }
       }
       else if (ev.keyCode == KEY.SPACE) {
@@ -356,8 +350,94 @@
     // GAME LOGIC
     //-------------------------------------------------------------------------
 
-    function play() { hide('start'); reset();          playing = true;  }
-    function lose() { show('start'); setVisualScore(); playing = false; }
+    function play() { hide('start'); reset(); paused = false; playing = true;  }
+    function togglePause() {
+      if (!playing)
+        return;
+      paused = !paused;
+      if (paused) {
+        clearActions();
+        html('start', '<a href="javascript:togglePause();">Press Space to Resume.</a>');
+        show('start');
+        hide('canvas');
+        hide('upcoming');
+      }
+      else {
+        html('start', '<a href="javascript:play();">Press Space to Play.</a>');
+        hide('start');
+        show('canvas');
+        show('upcoming');
+      }
+    }
+    function lose() {
+      show('start');
+      html('start', '<a href="javascript:play();">Press Space to Play.</a>');
+      setVisualScore();
+      paused = false;
+      playing = false;
+      var saved = saveGameResult(score, rows);
+      renderScoreViews(saved);
+    }
+
+    //-------------------------------------------------------------------------
+    // score persistence (localStorage)
+    //-------------------------------------------------------------------------
+
+    var SCORE_STORAGE_KEY = 'tetris_scores_v1',
+        LEADERBOARD_SIZE  = 10,
+        showingLeaderboard = false;
+
+    function loadScores() {
+      try {
+        var raw = localStorage.getItem(SCORE_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : { highScore: 0, highRows: 0, leaderboard: [] };
+      }
+      catch (e) {
+        return { highScore: 0, highRows: 0, leaderboard: [] };
+      }
+    }
+
+    function saveGameResult(finalScore, finalRows) {
+      var data = loadScores();
+      if (finalScore > data.highScore) {
+        data.highScore = finalScore;
+        data.highRows = finalRows;
+      }
+      data.leaderboard.push({ score: finalScore, rows: finalRows, at: Date.now() });
+      data.leaderboard.sort(function(a, b) { return b.score - a.score; });
+      data.leaderboard = data.leaderboard.slice(0, LEADERBOARD_SIZE);
+      localStorage.setItem(SCORE_STORAGE_KEY, JSON.stringify(data));
+      return data;
+    }
+
+    function formatScore(n) {
+      return ("00000" + Math.floor(n)).slice(-5);
+    }
+
+    function formatLeaderboardDate(at) {
+      var d = new Date(at);
+      return (d.getMonth() + 1) + '/' + d.getDate();
+    }
+
+    function renderScoreViews(data) {
+      html('high-score', formatScore(data.highScore));
+      var list = '', i, entry;
+      if (data.leaderboard.length === 0)
+        list = '<li>no games yet</li>';
+      else {
+        for (i = 0; i < data.leaderboard.length; i++) {
+          entry = data.leaderboard[i];
+          list += '<li>' + formatScore(entry.score) + ' (' + entry.rows + ' rows, ' + formatLeaderboardDate(entry.at) + ')</li>';
+        }
+      }
+      html('leaderboard', '<h4>Leaderboard</h4><ol>' + list + '</ol>');
+    }
+
+    function toggleScoreView() {
+      showingLeaderboard = !showingLeaderboard;
+      get('leaderboard').style.display = showingLeaderboard ? 'block' : 'none';
+      html('score-view-toggle', showingLeaderboard ? 'Hide Leaderboard' : 'View Leaderboard');
+    }
 
     function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
     function setScore(n)            { score = n; setVisualScore(n);  }
@@ -384,7 +464,7 @@
     }
 
     function update(idt) {
-      if (playing) {
+      if (playing && !paused) {
         if (vscore < score)
           setVisualScore(vscore + 1);
         handle(actions.shift());
@@ -623,6 +703,7 @@
     // FINALLY, lets run the game
     //-------------------------------------------------------------------------
 
+    renderScoreViews(loadScores());
     run();
 
   </script>
