@@ -14,9 +14,9 @@
       <p>Score <span id="score">00000</span></p>
       <p>Rows <span id="rows">0</span></p>
       <p>Best Score <span id="high-score">00000</span></p>
+      <p>Name <input type="text" id="player-name" maxlength="20" placeholder="Your name" size="12"></p>
 
-
-      <p><a href="javascript:toggleScoreView();" id="score-view-toggle" class="button">View Leaderboard</a></p>
+      <p><a href="javascript:toggleScoreView();" id="score-view-toggle" class="button">View Local Leaderboard</a></p>
     </div>
     <canvas id="canvas">
       Sorry, this example cannot be run because your browser does not support the &lt;canvas&gt; element
@@ -384,8 +384,27 @@
     //-------------------------------------------------------------------------
 
     var SCORE_STORAGE_KEY = 'tetris_scores_v1',
-        LEADERBOARD_SIZE  = 10,
+        PLAYER_NAME_KEY   = 'tetris_player_name',
+        LEADERBOARD_SIZE  = 100,
         showingLeaderboard = false;
+
+    function getPlayerName() {
+      var el = get('player-name');
+      var name = el ? el.value.trim() : '';
+      if (!name)
+        name = 'Anonymous';
+      try { localStorage.setItem(PLAYER_NAME_KEY, name); } catch (e) {}
+      return name;
+    }
+
+    function loadPlayerName() {
+      try {
+        var name = localStorage.getItem(PLAYER_NAME_KEY);
+        if (name && get('player-name'))
+          get('player-name').value = name;
+      }
+      catch (e) {}
+    }
 
     function loadScores() {
       try {
@@ -403,7 +422,7 @@
         data.highScore = finalScore;
         data.highRows = finalRows;
       }
-      data.leaderboard.push({ score: finalScore, rows: finalRows, at: Date.now() });
+      data.leaderboard.push({ name: getPlayerName(), score: finalScore, rows: finalRows, at: Date.now() });
       data.leaderboard.sort(function(a, b) { return b.score - a.score; });
       data.leaderboard = data.leaderboard.slice(0, LEADERBOARD_SIZE);
       localStorage.setItem(SCORE_STORAGE_KEY, JSON.stringify(data));
@@ -427,16 +446,16 @@
       else {
         for (i = 0; i < data.leaderboard.length; i++) {
           entry = data.leaderboard[i];
-          list += '<li>' + formatScore(entry.score) + ' (' + entry.rows + ' rows, ' + formatLeaderboardDate(entry.at) + ')</li>';
+          list += '<li><strong>' + (entry.name || 'Anonymous') + '</strong> ' + formatScore(entry.score) + ' (' + entry.rows + ' rows, ' + formatLeaderboardDate(entry.at) + ')</li>';
         }
       }
-      html('leaderboard', '<h4>Leaderboard</h4><ol>' + list + '</ol>');
+      html('leaderboard', '<h4>Local Leaderboard</h4><ol>' + list + '</ol>');
     }
 
     function toggleScoreView() {
       showingLeaderboard = !showingLeaderboard;
       get('leaderboard').style.display = showingLeaderboard ? 'block' : 'none';
-      html('score-view-toggle', showingLeaderboard ? 'Hide Leaderboard' : 'View Leaderboard');
+      html('score-view-toggle', showingLeaderboard ? 'Hide Local Leaderboard' : 'View Local Leaderboard');
     }
 
     function setVisualScore(n)      { vscore = n || score; invalidateScore(); }
@@ -703,6 +722,7 @@
     // FINALLY, lets run the game
     //-------------------------------------------------------------------------
 
+    loadPlayerName();
     renderScoreViews(loadScores());
     run();
 

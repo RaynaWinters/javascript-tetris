@@ -1,7 +1,13 @@
 Javascript Tetris
 =================
 
-This fork supports Imagery and rotational awareness of that imagery so that each tetronimo can be skinned with custom art. 
+This fork supports: 
+* Imagery and rotational awareness of that imagery so that each tetronimo can be skinned with custom art. 
+* Pause option
+* Highscore / Leaderboard (WIP)
+* index.html will keep a local only leaderboard and can be played completely locally
+* index.php stores leaderboard information in a .txt file and will persist across different instances.
+
 
 Alpha Stage
 ======
@@ -13,6 +19,8 @@ Alpha Stage
 * Utilized AI assistant Cursor to show examples of implementation of i image application and rotation
 * Added support for j, l, s, t, and z
 * Added background Image grid
+* Press spacebar to pause the game
+* Testing Scoreboards
 
 
 From Source

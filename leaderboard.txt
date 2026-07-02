@@ -1,0 +1,18 @@
+{
+    "highScore": 13070,
+    "highRows": 96,
+    "leaderboard": [
+        {
+            "name": "Rayna",
+            "score": 13070,
+            "rows": 96,
+            "at": 1783017110339
+        },
+        {
+            "name": "Rayna",
+            "score": 140,
+            "rows": 0,
+            "at": 1783016283587
+        }
+    ]
+}
